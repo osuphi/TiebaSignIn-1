@@ -12,6 +12,7 @@ import os
 import random
 import time
 
+import notify
 from tieba_client import TiebaClient
 
 logging.basicConfig(
@@ -37,8 +38,20 @@ def parse_args() -> str:
     return bduss
 
 
+def env_first(*names: str) -> str:
+    """按顺序返回第一个非空的 secrets 值"""
+    for name in names:
+        value = os.environ.get(name, "").strip()
+        if value:
+            return value
+    return ""
+
+
 def main() -> None:
     bduss = parse_args()
+    # PUSH_KEY 为通用推送 key，兼容 PushPlus 与 Server酱；旧的变量名继续可用
+    push_token = env_first("PUSH_KEY", "PUSHPLUS_TOKEN", "SERVERCHAN_SENDKEY", "SCKEY")
+    push_topic = env_first("PUSH_TOPIC", "PUSHPLUS_TOPIC")
     client = TiebaClient(bduss)
 
     # 1. 获取 tbs
@@ -152,6 +165,15 @@ def main() -> None:
         summary_lines.append(f"重试失败贴吧列表: {', '.join(final_failed_names)}")
     summary_lines.append("================================")
     logger.info("\n".join(summary_lines))
+
+    # 6. 推送签到结果到微信 (未配置 token 时自动跳过)
+    if push_token:
+        notify.send(
+            push_token,
+            notify.build_title(stats, total),
+            notify.build_content(total, stats, final_failed_names),
+            push_topic,
+        )
 
 
 if __name__ == "__main__":
