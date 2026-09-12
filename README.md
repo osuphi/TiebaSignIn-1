@@ -15,6 +15,8 @@
 
 + 贴吧自动签到
 
++ 支持推送签到结果至微信（PushPlus / Server酱，可选）
+
 # 使用方法
 
 ## 1.fork本项目
@@ -40,13 +42,41 @@ BDUSS | xxxxxxxxxxx
 
 ![](./assets/添加BDUSS.gif)
 
-## 4.开启actions
+## 4.配置微信推送（可选）
+
+签到结束后会把结果推送到微信，支持`PushPlus`和`Server酱`，二选一即可，不需要推送可以跳过这一步。
+
+### 方案一：Server酱
+
+1. 打开 [Server酱](https://sct.ftqq.com/)，用微信扫码登录，复制页面上的`SendKey`（`SCT`开头的 34 位字符）。
+
+2. 在仓库`Settings -> Secrets and variables -> Actions`中新建 Secret：`SCKEY`，值为上一步的`SendKey`。
+
+### 方案二：PushPlus
+
+1. 打开 [PushPlus](https://www.pushplus.plus/)，用微信扫码登录，复制页面上的`token`。
+
+2. 在同一个位置新建 Secret：`PUSHPLUS_TOKEN`，值为上一步的`token`。
+
+### 可用变量对照
+
+Name | Value
+-|-
+PUSH_KEY | 可选，通用推送 key，优先级最高
+SERVERCHAN_SENDKEY | Server酱官方文档推荐的变量名，值为 SendKey
+PUSHPLUS_TOKEN | PushPlus 的 token
+SCKEY | Server酱的 SendKey
+PUSH_TOPIC | 可选，仅 PushPlus 群组推送使用，留空则推送给本人
+
+程序按 key 前缀自动选择通道：`SCT`/`sctp`开头走 Server酱（`sctapi.ftqq.com`，`sctp`开头为 Server酱³），其它走 PushPlus。
+
+## 5.开启actions
 
 默认`actions`是处于禁止的状态，需要手动开启。
 
 ![](./assets/开启actions.gif)
 
-## 5.第一次运行actions
+## 6.第一次运行actions
 
 + 自己提交一次`push`。
 

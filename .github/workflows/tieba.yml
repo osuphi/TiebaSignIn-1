@@ -24,6 +24,8 @@ jobs:
       - name: Run sign-in
         env:
           BDUSS: ${{ secrets.BDUSS }}
+          PUSH_KEY: ${{ secrets.PUSH_KEY || secrets.SERVERCHAN_SENDKEY || secrets.PUSHPLUS_TOKEN || secrets.SCKEY }}
+          PUSH_TOPIC: ${{ secrets.PUSH_TOPIC || secrets.PUSHPLUS_TOPIC }}
         run: python run.py
 
   workflow-keepalive:
